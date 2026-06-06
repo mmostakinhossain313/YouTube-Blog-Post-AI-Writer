@@ -1,0 +1,232 @@
+{
+  "name": "YouTube → Blog Post AI Writer",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "6216656f-4ff2-434f-9546-48156e3345e2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -416,
+        0
+      ],
+      "id": "ebdf0092-01cb-46ec-a24a-bfc6b2d8dbc7",
+      "name": "Webhook",
+      "webhookId": "6216656f-4ff2-434f-9546-48156e3345e2"
+    },
+    {
+      "parameters": {
+        "url": "https://api.supadata.ai/v1/youtube/transcript",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.body.youtube_url }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "sd_23268dc5efdfcaeb8def3bf373b5e61e"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -256,
+        0
+      ],
+      "id": "9a98f12c-17ed-40cd-88e0-f76bf1ac0ad0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are an experienced blog writer who genuinely loves \nsharing knowledge with readers.\n\nYou write like a real human being — not a content machine.\nYou have opinions. You get excited about interesting ideas.\nYou explain things the way a smart friend would explain them.\n\nYour blog posts feel like a conversation, not a lecture.\nReaders finish your posts and feel like they learned something\nfrom someone who actually cares.\n\nStructure every blog post like this:\n- Catchy headline\n- Engaging introduction that hooks the reader\n- 3 to 5 main sections with subheadings\n- Real examples and insights\n- Strong conclusion with a call to action\n\nNever use robotic language.\nNever use generic filler sentences.\nWrite like you mean it."
+            },
+            {
+              "content": "=Write a complete blog post based on this YouTube video transcript.\nMake it engaging, informative and human.\n\nTranscript:\n{{ $json.content }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        -128,
+        0
+      ],
+      "id": "51a1348a-1ce9-40d9-9712-9694f990fc20",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "qkmcSIWhxRW61AM1",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "mostakinhossain89@gmail.com",
+        "subject": "=New Blog Post Ready — {{ $now.toFormat('yyyy-MM-dd') }}",
+        "message": "=Your blog post has been created!\n\nDate: {{ $now.toFormat('yyyy-MM-dd') }}\n\nOpen your Google Docs to review and publish.\n\nHave a great day!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        16
+      ],
+      "id": "15d6bda6-5b3f-438b-9b9d-7af2de4f59c0",
+      "name": "Send a message",
+      "webhookId": "089ae8c1-a7f7-43ae-8c86-1da4352fd1af",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6stsBcdkO41pX8Kq",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "1hnHjoQeUQP0o5BUUCDtJB1LO_o83Fy_v",
+        "title": "=Blog Post — {{ $now.toFormat('yyyy-MM-dd') }}\n"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        144,
+        0
+      ],
+      "id": "51134b82-d503-41d7-acd3-53d052ff2995",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "dS9JFRvgJbMPCWKf",
+          "name": "Google Docs OAuth2 API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('Message a model').item.json.output[0].content[0].text }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        304,
+        0
+      ],
+      "id": "906ff224-26ab-44de-8404-b76f83637585",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "dS9JFRvgJbMPCWKf",
+          "name": "Google Docs OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4088089a-6c9b-4257-a52a-81ca2a115965",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f2f23a593b5262fad10e7ebf366e5500ddfd99f99fc69ff6bdb831511c19c666"
+  },
+  "id": "4KGMpZlmgma0OVpT",
+  "tags": []
+}
