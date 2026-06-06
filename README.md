@@ -215,7 +215,7 @@ Yes. Set it up once. It works forever.
 You can import this workflow directly into your n8n.
 
 1. Download the file here:
-[youtube-blog-post-writer.json](youtube-blog-post-writer.json)
+[YouTube Blog Post AI Writer.json](json/YouTube%20→%20Blog%20Post%20AI%20Writer.json)
 
 2. Open n8n
 3. Click Import Workflow
