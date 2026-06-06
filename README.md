@@ -79,7 +79,7 @@ Every single time.
 
 ## Workflow Screenshot
 
-![YouTube Blog Post Workflow](Screenshot/Screenshot_1.png)
+![YouTube Blog Post Workflow](screenshot/Screenshot_1.png)
 
 ---
 
